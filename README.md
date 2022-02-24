@@ -1,69 +1,23 @@
-All these scripts require threeenvironment variables to be set:
+All these scripts require three environment variables to be set:
 
 	FF_HOST
 	FF_API_USER
 	FF_API_PASSWORD
 
-# Credential testing
-credential test
-identity get
-session get
+E.g.:
 
-# Namespace Management
-namespace create
-	{
-		name: '',
-		short_description: ''
-	}
+export FF_HOST='organization.xyz.com'
+export FF_API_USER='your.name@domain.com'
+export FF_API_PASSWORD='your API Password'
 
-Note: namespaces can not be deleted once created.
+Note:
+- Your API user is your email address
+- Your API PASSWORD is not the one you log in with, it is a separate password token just for API use
+- Your role must include api_user in at least one organization for any authenticated API calls to work
 
-# Organization Management
-	
-Organizations are created within a namespace
+Running:
 
-organization list
-	--namespace
-	--organization
+node dist/index.js is the main entry point
 
-organization create
-	--organization
-
-organization delete
-
-organization add_user
-	--user_contact_email
-	--organization
-
-organization remove_user
-
-# User / Identity Management
-
-user create
-	--organization
-	--user_contact_email
-	--is_api_user
-
-user update
-
-user delete
-
-user set_password
-	--user_contact_email
-	--new_password
-	
-# Role Management
-role get_all
-role get
-role create
-role remove
-
-# Scenario Management
-scenario get
-scenario get_running
-scenario stop
-scenario stop_all_running_for_organization
-scenario stop_all_running_globally
-
-
+A bash script, ff_cli is provided as a template in the bin directory
 
