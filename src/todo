@@ -1,0 +1,15 @@
+[ ] Set diagnostic level low for framework
+
+[ ] Validate api credentials exist
+
+[ ] Call endpoint to test crednetials
+	[ ] Determine what kind of API is being used, dynamically
+		[ ] v1
+		[ ] v2
+	[ ] Set api type
+
+[ ] Parse command line options
+	[ ] Convert / map / etl actions to appropriate back-end api
+	[ ] Exit
+
+

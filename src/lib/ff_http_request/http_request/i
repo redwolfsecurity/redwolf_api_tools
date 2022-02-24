@@ -1,0 +1,24 @@
+
+[ ] Add SNI Semantic
+    [ ] Use a resolve attribute, like curl does
+
+[ ] Add Retry with exponential backoff
+
+[ ] Emit metrics every time an http request is made automatically
+[ ] Emit error events every time an http request is_error
+[ ] Create options to disable this behavior if required
+
+[ ] Supply custom http and https agents
+	[ ] Keepalive
+
+[ ] Cache requests with memory or redis back-end
+	[ ] Do e-tag
+
+[ ] Allow an observable to be returned
+
+[ ] Do HTTP/2
+
+[ ] Support Dry-Run
+	dry_run = true
+
+[ ] Record trace for request

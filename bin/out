@@ -1,0 +1,80 @@
+{
+  "mime_type": "http/response",
+  "request": {
+    "host": "imperva.redwolfsecurity.com",
+    "credentials": {
+      "mime_type": "ff/credentials",
+      "username": "alexb@imperva.com"
+    },
+    "action": "object/get",
+    "name": "Get Objet",
+    "short_description": "Get an object by its uri",
+    "path": "/query?uri=organizations/imperva.com/tests/b28826a1-d9e9-48f9-9990-ca8a24abda3c"
+  },
+  "actual_request": {
+    "mime_type": "axios/request",
+    "request": {
+      "protocol": "https",
+      "port": 443,
+      "host": "imperva.redwolfsecurity.com",
+      "method": "GET",
+      "path": "/query?uri=organizations/imperva.com/tests/b28826a1-d9e9-48f9-9990-ca8a24abda3c",
+      "timeout": 10000,
+      "auth": {
+        "username": "alexb@imperva.com",
+        "password": "activate_api_pass_4545"
+      },
+      "maxContentLength": 104857600,
+      "url": "https://imperva.redwolfsecurity.com/query?uri=organizations/imperva.com/tests/b28826a1-d9e9-48f9-9990-ca8a24abda3c"
+    }
+  },
+  "start_time_epoch_ms": 1645712459050,
+  "data": [
+    {
+      "name": "Amplify HTTPS Flood",
+      "inspector": "test",
+      "description": "",
+      "auto_stop_time_s": 1800,
+      "parameters": {
+        "test_traffic_shaping_upper_limit_mbps": 1
+      },
+      "uri": "organizations/imperva.com/tests/b28826a1-d9e9-48f9-9990-ca8a24abda3c",
+      "organization": "imperva.com",
+      "organization_oid": "606e0309b76b651300eeb3ff",
+      "created_timestamp_epoch_ms": 1644943960438,
+      "last_modified_timestamp_epoch_ms": 1645199648917,
+      "created_by": {
+        "user_contact_email": "siteadmin@test.com",
+        "mime_type": "identity/statement"
+      },
+      "last_modification_by": {
+        "user_contact_email": "siteadmin@test.com",
+        "mime_type": "identity/statement"
+      },
+      "parent": "/organizations/imperva.com/tests/a12c5dd1-9838-4bbd-9f80-3c23c0c9478f",
+      "timestamp_epoch_ms": 1645199648917,
+      "cells": "[{\"type\":\"redwolf.Template\",\"position\":{\"x\":2630,\"y\":2280},\"size\":{\"width\":100,\"height\":66.66666666666666},\"angle\":0,\"inspector\":\"target\",\"group\":\"targets\",\"template_type\":\"target\",\"parameters\":{},\"targets\":[{\"resolve\":true,\"mime_type\":\"target/target\",\"target\":\"amplify.imperva.com:443\",\"description\":\"Amplify target\",\"is_production\":false,\"target_traffic_shaping_upper_limit_mbps\":1000,\"agent_traffic_shaping_upper_limit_mbps\":500}],\"id\":\"bb8b0693-04e6-44b4-aa4d-c8c30154a4d3\",\"z\":2,\"attrs\":{\"rect\":{\"fill\":\"#45ADA8\"},\"image\":{\"xlink:href\":\"img/icons/target.svg\"},\".template-name\":{\"text\":\"Target\"},\".template-label\":{\"text\":\"amplify.imperva.com:443\\nAmplify target\"}}},{\"type\":\"redwolf.Template\",\"position\":{\"x\":2450,\"y\":2360},\"size\":{\"width\":100,\"height\":66.66666666666666},\"angle\":0,\"inspector\":\"n_agents\",\"group\":\"agents\",\"template_type\":\"agent\",\"parameters\":{\"mime_type\":\"bridge/agent_selector\",\"include\":\"monitor:true agent:true cloud:true\",\"exclude\":\"\",\"description\":\"\",\"number_of_agents\":null},\"id\":\"a710ee37-5a21-4886-8e07-7cd0d0b10a31\",\"z\":3,\"attrs\":{\"rect\":{\"fill\":\"#59884F\"},\"image\":{\"xlink:href\":\"img/icons/monitor.svg\"},\".template-name\":{\"text\":\"All\\nCloud\\nMonitor\\nAgents\"},\".template-label\":{\"text\":\"? Agent\\n∈ monitor:true agent:true clo...\"}}},{\"type\":\"redwolf.Template\",\"position\":{\"x\":2450,\"y\":2200},\"size\":{\"width\":100,\"height\":66.66666666666666},\"angle\":0,\"inspector\":\"n_agents\",\"group\":\"agents\",\"template_type\":\"agent\",\"parameters\":{\"mime_type\":\"bridge/agent_selector\",\"include\":\"traffic_generator:true agent:true cloud:true\",\"exclude\":\"\",\"description\":\"\",\"number_of_agents\":null},\"id\":\"087fe564-666e-41a3-a182-fcb3260ec6c5\",\"z\":4,\"attrs\":{\"rect\":{\"fill\":\"#994F4F\"},\"image\":{\"xlink:href\":\"img/icons/agent.svg\"},\".template-name\":{\"text\":\"All\\nCloud\\nTraffic\\nGenerator\\nAgents\"},\".template-label\":{\"text\":\"? Agent\\n∈ traffic_generator:true agen...\"}}},{\"type\":\"redwolf.Template\",\"position\":{\"x\":2200,\"y\":2360},\"size\":{\"width\":100,\"height\":66.66666666666666},\"angle\":0,\"inspector\":\"webmon\",\"group\":\"monitors\",\"template_type\":\"action\",\"parameters\":{\"extra_tags\":[],\"mime_type\":\"monitor/webmon\",\"description\":\"Monitor site performance\",\"url\":\"https://amplify.imperva.com/\",\"method\":\"\",\"header_host\":\"\",\"header_referer\":\"\",\"user_agent\":\"Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.111 Safari/537.36\",\"authentication_username\":\"\",\"authentication_password\":\"\",\"is_target_proxy\":false,\"authentication_basic_proxy_enabled\":false,\"follow_redirects\":false,\"enable_cookies\":true,\"slow_threshold_s\":10,\"check_each_s\":10,\"lookup_previous_session_s\":300},\"id\":\"817c2184-a829-4f6a-ae90-c03dc75fc3a2\",\"z\":6,\"attrs\":{\"rect\":{\"fill\":\"#896F6F\"},\"image\":{\"xlink:href\":\"img/icons/monitor.svg\"},\".template-name\":{\"text\":\"Webmon\"},\".template-label\":{\"text\":\"URL: https://amplify.imperva.com/\\nMonitor site performance\"}}},{\"type\":\"link\",\"source\":{\"id\":\"817c2184-a829-4f6a-ae90-c03dc75fc3a2\"},\"target\":{\"id\":\"a710ee37-5a21-4886-8e07-7cd0d0b10a31\",\"selector\":\"> g:nth-child(1) > g:nth-child(1) > rect:nth-child(1)\"},\"id\":\"b07b3b7d-f571-4fa4-bd31-9b7455334127\",\"z\":7,\"attrs\":{\".marker-source\":{\"d\":\"M 10 0 L 0 5 L 10 10 z\",\"transform\":\"scale(0.001)\"},\".marker-target\":{\"d\":\"M 10 0 L 0 5 L 10 10 z\"}}},{\"type\":\"link\",\"source\":{\"id\":\"087fe564-666e-41a3-a182-fcb3260ec6c5\"},\"target\":{\"id\":\"bb8b0693-04e6-44b4-aa4d-c8c30154a4d3\",\"selector\":\"> g:nth-child(1) > g:nth-child(1) > rect:nth-child(1)\"},\"id\":\"c4a4d51d-85ee-4c76-82bc-c099d8232980\",\"z\":8,\"attrs\":{\".marker-source\":{\"d\":\"M 10 0 L 0 5 L 10 10 z\",\"transform\":\"scale(0.001)\"},\".marker-target\":{\"d\":\"M 10 0 L 0 5 L 10 10 z\"}}},{\"type\":\"link\",\"source\":{\"id\":\"a710ee37-5a21-4886-8e07-7cd0d0b10a31\"},\"target\":{\"id\":\"bb8b0693-04e6-44b4-aa4d-c8c30154a4d3\",\"selector\":\"> g:nth-child(1) > g:nth-child(1) > rect:nth-child(1)\"},\"id\":\"f84ec445-fc89-4de2-83ed-6ff9451e96c5\",\"z\":9,\"attrs\":{\".marker-source\":{\"d\":\"M 10 0 L 0 5 L 10 10 z\",\"transform\":\"scale(0.001)\"},\".marker-target\":{\"d\":\"M 10 0 L 0 5 L 10 10 z\"}}},{\"type\":\"redwolf.Template\",\"position\":{\"x\":2200,\"y\":2200},\"size\":{\"width\":100,\"height\":66.66666666666666},\"angle\":0,\"inspector\":\"http\",\"group\":\"ipv4_http\",\"template_type\":\"action\",\"parameters\":{\"mime_type\":\"traffic_generator/http\",\"engine_http_flood_direct\":true,\"method\":\"GET\",\"custom_headers\":[\"Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\",\"Accept-Encoding: gzip, deflate, sdch\",\"Accept-Language: en-US,en;q=0.8\"],\"concurrency_per_engine\":100,\"description\":\"DDoS\",\"url\":\"https://amplify.imperva.com/\",\"http_version\":\"1.1\",\"keep_alive\":false,\"header_host\":\"\",\"custom_user_agent\":\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36\",\"header_referer\":\"\",\"cache_control_request_most_recent\":false,\"content_type\":\"application/x-www-form-urlencoded\",\"cookie_learn_http\":false,\"cookie_learn_javascript\":false,\"authentication\":false,\"cipher_suite\":[],\"is_target_proxy\":false,\"authentication_basic_proxy_enabled\":false,\"rate_per_s\":0,\"maximize_hanging_open_connections\":false,\"random_user_agent\":false,\"random_get_parameters\":false,\"true_client_ip_headers\":false,\"x_forwarded_for_headers\":false,\"engine_health_check_direct_tcp\":false,\"engine_health_check_direct\":false,\"engine_bad_data_direct\":false,\"engine_hang_up_before_request\":false,\"engine_hulk_direct\":false,\"engine_hit_and_run_direct\":false,\"engine_slowloris_direct\":false,\"engine_slow_read_direct\":false,\"engine_slow_write_direct\":false,\"slow_connections_per_s\":0,\"engine_sql_xss_scan_direct\":false,\"engine_scan_nessus\":false,\"engine_scan_openvas\":false,\"engine_scan_w3af\":false,\"engine_scan_rapid7\":false,\"engine_scan_qualys\":false,\"engine_scan_skipfish\":false,\"engine_waf_basic_check\":false,\"engine_waf_injection_nosql\":false,\"engine_waf_injection_sql\":false,\"engine_waf_injection_crlf\":false,\"engine_waf_injection_ldap\":false,\"engine_waf_injection_xml\":false,\"engine_waf_injection_false_positive\":false,\"engine_waf_injection_xss\":false,\"engine_waf_injection_shell\":false,\"engine_waf_injection_content_escaping\":false,\"engine_waf_injection_insecure_files\":false,\"engine_waf_information_disclosure_financial\":false,\"engine_waf_information_disclosure_pii\":false,\"engine_waf_information_disclosure_file_types\":false,\"engine_tor_requests_enable\":false,\"record_output_enabled\":false},\"id\":\"29e28505-28cb-4ee3-a01d-7bbbf5b0bd01\",\"z\":10,\"attrs\":{\"rect\":{\"fill\":\"#9dd0e0\"},\"image\":{\"xlink:href\":\"img/icons/http.png\"},\".template-name\":{\"text\":\"HTTPx\\nGET\\nBASIC\"},\".template-label\":{\"text\":\"Concurrency: 100\\nURL: https://amplify.imperva.com/\\nDDoS\"}}},{\"type\":\"link\",\"source\":{\"id\":\"29e28505-28cb-4ee3-a01d-7bbbf5b0bd01\"},\"target\":{\"id\":\"087fe564-666e-41a3-a182-fcb3260ec6c5\",\"selector\":\"> g:nth-child(1) > g:nth-child(1) > rect:nth-child(1)\"},\"id\":\"f52fd80b-532a-4285-8133-11b9611d9991\",\"z\":11,\"attrs\":{\".marker-source\":{\"d\":\"M 10 0 L 0 5 L 10 10 z\",\"transform\":\"scale(0.001)\"},\".marker-target\":{\"d\":\"M 10 0 L 0 5 L 10 10 z\"}}},{\"type\":\"redwolf.Template\",\"position\":{\"x\":2200,\"y\":2040},\"size\":{\"width\":100,\"height\":66.66666666666666},\"angle\":0,\"inspector\":\"http\",\"group\":\"ipv4_http\",\"template_type\":\"action\",\"parameters\":{\"mime_type\":\"traffic_generator/http\",\"comment\":\"Prototyping the whole family of http(s) based traffic generators\",\"engine_http_flood_direct\":true,\"method\":\"GET\",\"concurrency_per_engine\":1,\"description\":\"Application Attack\\n(Injections, Scanning)\",\"url\":\"https://amplify.imperva.com/\",\"http_version\":\"1.1\",\"keep_alive\":false,\"header_host\":\"\",\"custom_user_agent\":\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36\",\"header_referer\":\"\",\"cache_control_request_most_recent\":false,\"content_type\":\"application/x-www-form-urlencoded\",\"cookie_learn_http\":false,\"cookie_learn_javascript\":false,\"authentication\":false,\"cipher_suite\":[],\"is_target_proxy\":false,\"authentication_basic_proxy_enabled\":false,\"rate_per_s\":0,\"maximize_hanging_open_connections\":false,\"random_user_agent\":false,\"random_get_parameters\":false,\"true_client_ip_headers\":false,\"x_forwarded_for_headers\":false,\"engine_health_check_direct_tcp\":false,\"engine_health_check_direct\":false,\"engine_bad_data_direct\":false,\"engine_hang_up_before_request\":false,\"engine_hulk_direct\":false,\"engine_hit_and_run_direct\":false,\"engine_slowloris_direct\":false,\"engine_slow_read_direct\":false,\"engine_slow_write_direct\":false,\"slow_connections_per_s\":0,\"engine_sql_xss_scan_direct\":true,\"engine_scan_nessus\":false,\"engine_scan_openvas\":false,\"engine_scan_w3af\":false,\"engine_scan_rapid7\":false,\"engine_scan_qualys\":false,\"engine_scan_skipfish\":false,\"engine_waf_basic_check\":false,\"engine_waf_injection_nosql\":false,\"engine_waf_injection_sql\":true,\"engine_waf_injection_crlf\":false,\"engine_waf_injection_ldap\":false,\"engine_waf_injection_xml\":false,\"engine_waf_injection_false_positive\":false,\"engine_waf_injection_xss\":true,\"engine_waf_injection_shell\":false,\"engine_waf_injection_content_escaping\":false,\"engine_waf_injection_insecure_files\":false,\"engine_waf_information_disclosure_financial\":false,\"engine_waf_information_disclosure_pii\":false,\"engine_waf_information_disclosure_file_types\":false,\"engine_tor_requests_enable\":true,\"record_output_enabled\":false,\"engine_slowloris_tor\":false,\"engine_slow_read_tor\":false,\"engine_slow_write_tor\":false,\"engine_bad_data_tor\":false,\"engine_health_check_tor\":false},\"id\":\"e728ca0f-68db-4e78-93e2-6962c838e8b2\",\"z\":12,\"attrs\":{\"rect\":{\"fill\":\"#9dd0e0\"},\"image\":{\"xlink:href\":\"img/icons/http.png\"},\".template-name\":{\"text\":\"HTTPx\\nMaster\\nTemplate\"},\".template-label\":{\"text\":\"Concurrency: 1\\nURL: https://amplify.imperva.com/\\nApplication Attack\\n(Injections, Scanning)\"}}},{\"type\":\"link\",\"source\":{\"id\":\"e728ca0f-68db-4e78-93e2-6962c838e8b2\"},\"target\":{\"id\":\"087fe564-666e-41a3-a182-fcb3260ec6c5\",\"selector\":\"> g:nth-child(1) > g:nth-child(1) > rect:nth-child(1)\"},\"id\":\"4dfc98fb-32fc-4922-902e-07e67e351098\",\"z\":13,\"attrs\":{\".marker-source\":{\"d\":\"M 10 0 L 0 5 L 10 10 z\",\"transform\":\"scale(0.001)\"},\".marker-target\":{\"d\":\"M 10 0 L 0 5 L 10 10 z\"}}}]",
+      "active_test": false,
+      "mime_type": "test_manager/test",
+      "__v": 0
+    }
+  ],
+  "http_code": 200,
+  "event_message_native": "OK",
+  "headers": {
+    "server": "nginx/1.17.3",
+    "date": "Thu, 24 Feb 2022 14:20:59 GMT",
+    "content-type": "application/json; charset=utf-8",
+    "content-length": "11890",
+    "connection": "close",
+    "access-control-allow-credentials": "true",
+    "access-control-allow-methods": "undefined",
+    "access-control-allow-headers": "undefined",
+    "access-control-allow-origin": "undefined",
+    "etag": "W/\"2e72-5L4YGWlezYdr9rPFp59qGQ\"",
+    "vary": "Accept-Encoding",
+    "strict-transport-security": "max-age=31536000; includeSubDomains"
+  },
+  "end_time_epoch_ms": 1645712459320,
+  "elapsed_ms": 270
+}

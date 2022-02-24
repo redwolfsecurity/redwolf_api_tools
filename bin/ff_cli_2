@@ -1,0 +1,14 @@
+#!/usr/bin/env node
+const process = require('process')
+const { exec, spawn } = require('child_process');
+
+const file_path = '../dist/index.js'
+
+const node_path = process.argv[0] // Will be like '/usr/local/bin/node'
+process.argv.shift(2) // get rid of argv[0]
+
+const cli_arguments = [].concat( file_path, process.argv )
+console.log( 'node', node_path, 'cli_arguments', cli_arguments )
+const ff_cli = exec( node_path, cli_arguments )
+
+console.log( ff_cli )
