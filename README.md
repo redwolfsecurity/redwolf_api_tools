@@ -1,10 +1,5 @@
 All these scripts require three environment variables to be set:
 
-	FF_HOST
-	FF_API_USER
-	FF_API_PASSWORD
-
-E.g.:
 
 export FF_HOST='organization.xyz.com'
 export FF_API_USER='your.name@domain.com'
@@ -17,7 +12,17 @@ Note:
 
 Running:
 
-node dist/index.js is the main entry point
+There is a script in the 'bin' directory. We recommend putting it in path.
 
-A bash script, ff_cli is provided as a template in the bin directory
+PATH=${PATH}:${PWD}/bin
+
+Then run:
+
+ff_cli --help
+
+
+A non-authenticating action to test general API endpoint reachability is:
+
+ff_cli --action network/get_publc_ip
+
 

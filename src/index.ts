@@ -1,24 +1,32 @@
 import { configuration } from './auto_configuration'
 import { http_request as ff_http_request } from './lib/ff_http_request'
-import * as nested_replace from 'json-nested-replace'
-import * as replace_key from 'recursive-key-replace'
+import { readFileSync, readSync } from 'fs'
+import * as process from 'process'
 
 function project(object, projection) {
+	if ( !object ) {
+		return
+	}
+
 	if (!projection) {
 		return object
 	}
+
+	// If array, project over the elements of the array
+	if ( Array.isArray( object ) ) {
+		return object.map( ( item ) => { return project( item, projection ) } )
+	}
+
 	let projected_object = {}
 	for (let key in projection) {
-		projected_object[key] = object[key];
+		projected_object[key] = object[key]
 	}
-	return projected_object;
+	return projected_object
 }
 
 async function main(data?, options?, scope?) {
-	let output
 	let result
 
-	// The credentials for our API.
 	const api_credentials = {
 		mime_type: 'ff/credentials',
 		username: data.ff_api_user,
@@ -41,14 +49,50 @@ async function main(data?, options?, scope?) {
 		organization_partial = `&organization=${data?.organization}`
 	}
 
+	// Handle JSON as JSON, from file, or from stdin
+	if ( data?.json ) {
+		let is_valid_json = false
+		// Case: JSON value is serialized JSON. We convert string to JSON
+		try {
+			data.json = JSON.parse( data?.json )
+			is_valid_json = true
+		} catch ( exception ) {
+		}
+		// CASE: JSON value is filename. We try to read filename, and convert to JSON
+		try {
+			data.json = JSON.parse( readFileSync( data?.json, 'utf8' ).toString() )
+			is_valid_json = true
+		} catch ( exception ) {
+		}
+		// CASE: JSON value is '-', which we will take to be stdin.
+		if ( data.json === '-') {
+			try {
+				data.json = JSON.parse( readFileSync( '/dev/stdin', 'utf8' ).toString() )
+				/*
+				const bytes = 16 * 1024 * 1024 // 16 megabytes
+				const buffer = Buffer.alloc( bytes ) // 16 megabyte buffer
+				readSync( 0, buffer, 0, bytes, 0)
+				data.json = JSON.parse( buffer.toString() )
+				*/
+				is_valid_json = true
+			} catch ( exception ) {
+			}
+		}
+
+		if ( ! is_valid_json ) {
+			console.error( 'INVALID JSON PARAMETER', data?.json )
+			process.exit( 1 )
+		}
+
+
+	}
+
 	const action_handler_map = [
 		{
 			action: 'object/get',
 			name: 'Get Objet',
 			short_description: 'Get an object by its uri',
 			path: `/query?uri=${data?.uri}`,
-			// async_function : get_object_by_uri,
-			// project : { mime_type : true, uri: true }
 		},
 		{
 			action: 'object/save',
@@ -57,8 +101,7 @@ async function main(data?, options?, scope?) {
 			method: 'post',
 			path: `/query?uri=${data?.uri}`,
 			data: data?.json,
-			// async_function: save_object,
-			// project : { mime_type : true, uri: true }
+			async_function: save_object,
 		},
 		{
 			action: 'object/query',
@@ -94,7 +137,6 @@ async function main(data?, options?, scope?) {
 			project: { mime_type: true, uri: true, name: true, description: true, organization: true, error: true }
 		},
 		{
-			// https://imperva.redwolfsecurity.com/action/stop?uri=/organizations/imperva.com/tests/a12c5dd1-9838-4bbd-9f80-3c23c0c9478f
 			action: 'action/stop',
 			name: 'Stops action by URI',
 			short_description: 'Stops an action by the specified URI',
@@ -125,7 +167,16 @@ async function main(data?, options?, scope?) {
 
 	if (!data['action']) {
 		console.log('Available Actions:')
-		console.table(action_handler_map)
+		console.table(
+			project(
+					action_handler_map,
+					{
+						action : true,
+						name : true,
+						short_description : true
+					}
+				)
+		)
 		return
 	}
 
@@ -189,6 +240,7 @@ async function main(data?, options?, scope?) {
 		}
 	}
 
+	return result
 
 }
 
@@ -258,26 +310,103 @@ async function get_object_by_uri(data, options, scope) {
 	return object
 }
 
-/*
+// Save an object. Object must have mime_type and uri
 async function save_object(data, options, scope) {
-	const configuration = scope?.configuration
-	const configuration = scope?.configuration
-
 	const request = scope.request
-	const action = data
-	const request = {
-		method: 'post',
-		host: data.ff_host,
-		credentials: api_credentials,
-		...action_handler
-	}
+	request.method = 'post'
+	request.path = '/'
+	request.data = data.json
+	return await ff_http_request( request )
 }
-*/
+
 
 // Stop all actions that are running
 async function stop_all() {
 
 }
 
+
+// Provision Agents
+function provision_agents( data, options, scope ) {
+	/*
+    transaction_id = '77c4023f-fb5a-4ef9-a04e-1be7ac543bbd' // uuid
+    namespace = '071cbad7-d14e-4a22-8606-dbb645deb5fb' // Change
+    uuid = '6fdf296d-e28a-4e1b-b126-6d86db4a0db0' // Change dynamically
+
+    const provisioning_request_template = {
+        "mime_type": "provision/request_general_cloud_agents",
+        "uri": `${namespace}::/organization/${data.organization}/provision/request_general_cloud_agents/${uuid}`,
+        "timestamp_epoch_ms": Date.now(),
+        "schedule_enum": "now",
+        "provision_object": "agents",
+        "transaction_id": transaction_id,
+        "provision_distribution_enum": "globally_evenly_distributed",
+        "quantity": data.quantity,
+        "duration_hours": data.duration_m / 60,
+        "duration_minutes": data.duration_m,
+        "organization": data.organization,
+        "cpu_count": 2,
+        "ram_gb": 8,
+        "tags": [
+        "traffic_generator:true"
+        ],
+		*/
+    /*
+        // "deployment_request_uri": "/organizations/training.redwolfsecurity.com/provisioning/deployment_request/duration_h/1.02/transaction_id/35c6f788-387d-44ce-b3cd-caa88e77868f",
+
+        // Not sure this required for general case
+        "regional_distribution": [
+        {
+            "value": "Australia",
+            "content": "Australia",
+            "region": "Asia",
+            "relative_weight": null
+        }
+        ],
+        "exact_distribution": "",
+        */
+
+		/*
+        "user_contact_email": "siteadmin@test.com",
+        "from": `${ namespace }::/organization/${ organization }/service/provisioning_service/${uuid}`,
+        "bandwidth_mbps_max": 1000,
+        "created_by": {
+        "mime_type": "identity/statement",
+        "user_contact_email_template": "[user_contact_email]",
+        "user_contact_email": "siteadmin@test.com"
+        },
+        "subsystem": "provisioning_management",
+        "system": "provisioning",
+        "agent_role": "traffic generator",
+        "state": "requested",
+        "last_modification_by": {
+        "mime_type": "identity/statement",
+        "user_contact_email_template": "[user_contact_email]",
+        "user_contact_email": "siteadmin@test.com"
+        },
+        "last_modified_timestamp_epoch_ms": Date.now(),
+
+        "security_object_policy": {
+        "mime_type": "security/object_policy",
+        "schema_version": "ff20170505",
+        "policy_language": "ff",
+        "scope": {
+            "can_read": "universe",
+            "can_write": "system",
+            "can_delete": "system"
+        }
+        },
+        "service": "provisioning_service",
+        "is_advanced": "",
+        "source": "/provisioning_service/provisioning/provisioning_management",
+        "namespace": namespace,
+        "uuid": uuid,
+        "created_timestamp_epoch_ms": Date.now(),
+        "source_template": "/[service]/[system]/[subsystem]"
+	
+    }
+	*/
+    //return provisioning_request_template
+}
 
 main(configuration)
