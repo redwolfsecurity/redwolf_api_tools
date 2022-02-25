@@ -22,7 +22,10 @@ cli
     .option( '--uri [uri]', 'URI specifies an object' )
     .option( '--set_target [target]', 'Set target parameter. Target is typically fqdn:port or ip:port')
     .option( '--set_url [url]', 'Set URL parameter. URL should be full https://xyz.com/')
+    .option( '--quantity [quantity]', 'Set quantity')
+    .option( '--duration_m [minutes]', 'Set duration in minutes')
     .option( '--json [json]', 'Provide JSON encoded as a string.')
+    .option( '--type [type]', 'Set type')
     .option( '--output_format [format]', 'Change format. Default is text. Supports "json"')
 
 cli.parse( process.argv )

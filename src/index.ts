@@ -2,6 +2,7 @@ import { configuration } from './auto_configuration'
 import { http_request as ff_http_request } from './lib/ff_http_request'
 import { readFileSync, readSync } from 'fs'
 import * as process from 'process'
+import { v4 as uuidv4 } from 'uuid'
 
 function project(object, projection) {
 	if ( !object ) {
@@ -24,16 +25,10 @@ function project(object, projection) {
 	return projected_object
 }
 
-async function main(data?, options?, scope?) {
+async function ff_api_request(data?, options?, scope?) {
 	let result
 
-	const api_credentials = {
-		mime_type: 'ff/credentials',
-		username: data.ff_api_user,
-		password: data.ff_api_password
-	}
-
-	delete data.ff_api_password
+	const api_credentials = scope.api_credentials
 
 	let base_uri = ''
 	if (data.uri) {
@@ -47,44 +42,6 @@ async function main(data?, options?, scope?) {
 	let organization_partial = ''
 	if (data?.organization) {
 		organization_partial = `&organization=${data?.organization}`
-	}
-
-	// Handle JSON as JSON, from file, or from stdin
-	if ( data?.json ) {
-		let is_valid_json = false
-		// Case: JSON value is serialized JSON. We convert string to JSON
-		try {
-			data.json = JSON.parse( data?.json )
-			is_valid_json = true
-		} catch ( exception ) {
-		}
-		// CASE: JSON value is filename. We try to read filename, and convert to JSON
-		try {
-			data.json = JSON.parse( readFileSync( data?.json, 'utf8' ).toString() )
-			is_valid_json = true
-		} catch ( exception ) {
-		}
-		// CASE: JSON value is '-', which we will take to be stdin.
-		if ( data.json === '-') {
-			try {
-				data.json = JSON.parse( readFileSync( '/dev/stdin', 'utf8' ).toString() )
-				/*
-				const bytes = 16 * 1024 * 1024 // 16 megabytes
-				const buffer = Buffer.alloc( bytes ) // 16 megabyte buffer
-				readSync( 0, buffer, 0, bytes, 0)
-				data.json = JSON.parse( buffer.toString() )
-				*/
-				is_valid_json = true
-			} catch ( exception ) {
-			}
-		}
-
-		if ( ! is_valid_json ) {
-			console.error( 'INVALID JSON PARAMETER', data?.json )
-			process.exit( 1 )
-		}
-
-
 	}
 
 	const action_handler_map = [
@@ -119,8 +76,9 @@ async function main(data?, options?, scope?) {
 			action: 'action/get_running',
 			name: 'Get running actions',
 			short_description: 'Lists running actions',
-			path: '/query/tests/live',
-			project: { mime_type: true, scenario_uri: true, scenario_name: true, scenario_description: true, organization: true, error: true }
+			// path: '/query/tests/live',
+			path : `/query?mime_type=test_manager/live_test&active_test=true&${organization_partial}`,
+			project: { mime_type: true, uri: true, name: true, description: true, organization: true, error: true }
 		},
 		{
 			action: 'action/get',
@@ -160,9 +118,50 @@ async function main(data?, options?, scope?) {
 			action: 'provision/agents',
 			name: 'Provision Agents',
 			short_description: 'Provision Agents',
-			project: { mime_type: true }
+			project: { mime_type: true },
+			async_function: provision_agents
 		},
 	]
+
+	// Sort actions
+	action_handler_map.sort( (a,b) => ( a.action > b.action ) ? 1 : ( (b.action > a.action ) ? -1 : 0 ))
+
+
+	// Handle JSON as JSON, from file, or from stdin
+	if ( data?.json ) {
+		let is_valid_json = false
+		// Case: JSON value is serialized JSON. We convert string to JSON
+		try {
+			data.json = JSON.parse( data?.json )
+			is_valid_json = true
+		} catch ( exception ) {
+		}
+		// CASE: JSON value is filename. We try to read filename, and convert to JSON
+		try {
+			data.json = JSON.parse( readFileSync( data?.json, 'utf8' ).toString() )
+			is_valid_json = true
+		} catch ( exception ) {
+		}
+		// CASE: JSON value is '-', which we will take to be stdin.
+		if ( data.json === '-') {
+			try {
+				data.json = JSON.parse( readFileSync( '/dev/stdin', 'utf8' ).toString() )
+				/*
+				const bytes = 16 * 1024 * 1024 // 16 megabytes
+				const buffer = Buffer.alloc( bytes ) // 16 megabyte buffer
+				readSync( 0, buffer, 0, bytes, 0)
+				data.json = JSON.parse( buffer.toString() )
+				*/
+				is_valid_json = true
+			} catch ( exception ) {
+			}
+		}
+
+		if ( ! is_valid_json ) {
+			console.error( 'INVALID JSON PARAMETER', data?.json )
+			process.exit( 1 )
+		}
+	}
 
 
 	if (!data['action']) {
@@ -182,14 +181,18 @@ async function main(data?, options?, scope?) {
 
 	const action_handler = action_handler_map.find(item => data.action === item.action)
 
+	if ( ! action_handler ) {
+		console.error( 'UNKNOWN ACTION', data.action )
+	}
+
 	if ( data?.verbose ) {
-		console.error('ACTION handler', action_handler)
+		console.error('ACTION HANDLER', action_handler)
 	}
 
 	if ( typeof action_handler?.async_function == 'function' ) {
 		const f = action_handler.async_function
 		let request = {
-			host: data.ff_host,
+			host: api_credentials.ff_host,
 			credentials: api_credentials,
 			...action_handler
 		}
@@ -201,49 +204,110 @@ async function main(data?, options?, scope?) {
 	} else if (action_handler?.path) {
 		// Test request
 		let request = {
-			host: data.ff_host,
+			host: api_credentials.ff_host,
 			credentials: api_credentials,
 			...action_handler
 		}
 
-		result = await ff_http_request(request)
+		result = await ff_http_request(request, options, scope )
 	}
 
+	// If result is not an error, and we have data, we will return only the data.
+	if (
+		! result?.is_error &&
+		result?.data
+	) {
+		result = result.data
+	}
+
+	const visualization_options = {
+		...data
+	}
+
+	// We might be asked to project specific fields
+	if ( action_handler?.project ) {
+		visualization_options.project = action_handler.project
+	}
+
+	await visualize(
+		result,
+		visualization_options
+	)
 
 	if ( ! result ) {
 		return []
-	}
-
-	// Redact sensitive data
-	delete result?.request?.credentials?.password
-	delete result?.request?.credentials?.auth
-	delete result?.actual_request
-
-	// Format result
-	if (data?.output_format === 'json') {
-		console.log( JSON.stringify( result, null, 2 ) )
-	} else {
-		if (result.is_error) {
-			console.error('Errors', result)
-		} {
-			// A gentle reminder - just because a server replies 200 OK doesn't mean it will give you a response
-			if (result.data) {
-				if (Array.isArray(result.data)) {
-					result.data.forEach(item => {
-						console.table(project(item, action_handler.project))
-					})
-				} else {
-					console.table(project(result.data, action_handler.project))
-				}
-				console.error(`elapsed_ms : ${result.elapsed_ms}`)
-			}
-		}
 	}
 
 	return result
 
 }
 
+/*
+ * Visualizes data - in console / ascii or json
+*/
+async function visualize( data, options?, scope? ) {
+
+	if ( ! data ) {
+		console.error( 'NO DATA')
+		return
+	}
+
+	// Redact sensitive data that might be there
+	delete data?.request?.credentials?.password
+	delete data?.request?.credentials?.auth
+	delete data?.actual_request
+
+	// Projection?
+	let projection
+	if ( options?.project ) {
+		projection = { ... options.project }
+	}
+
+	// Format result
+	// If asked for JSON
+	if (options?.output_format === 'json') {
+		console.log( JSON.stringify( data, null, 2 ) )
+		return
+	}
+	
+	// If data is an http response, and is_error
+	if (
+		data?.mime_type === 'http/response' &&
+		data?.is_error
+	) {
+		console.error('HTTP REQUEST ERROR', JSON.stringify( data, null, 2 ) )
+		return
+	}
+
+	// If this is an http/response, and we have data, we'll visualize the data, not the response info
+	if (
+		data?.mime_type === 'http/response' &&
+		data?.data
+	) {
+		data = data.data
+	}
+	
+	if ( data ) {
+		// Handle the many case
+		if ( Array.isArray( data ) ) {
+			data.forEach( item => {
+				console.table( project( item, projection ))
+			})
+			return
+		} else {
+			// Handle the 1 case
+			console.table( project( data, projection ) )
+			return
+		}
+	}
+
+	console.error('VISUALIZATION ERROR: Unknown visualization case. Data is:')
+	console.log( data )
+}
+
+/*
+* Copies a scenario from one organization to another
+*/
 async function scenario_copy(data, options, scope) {
 	scope.request.path = `/query?uri=${data.uri}`
 
@@ -288,10 +352,13 @@ async function scenario_copy(data, options, scope) {
 	request.method = 'post'
 	request.path = '/'
 	request.data = source_object
-	const post_response = await ff_http_request( request )
+	const post_response = await ff_http_request( request, options, scope )
 	return source_object
 }
 
+/*
+ * Get an object by URI
+*/
 async function get_object_by_uri(data, options, scope) {
 	const configuration = scope?.configuration
 	if ( data?.verbose ) {
@@ -299,7 +366,7 @@ async function get_object_by_uri(data, options, scope) {
 	}
 	const request = scope.request
 	let object = undefined
-	let result = await ff_http_request(request)
+	let result = await ff_http_request(request, options, scope)
 
 	if (
 		!result?.is_error &&
@@ -316,26 +383,73 @@ async function save_object(data, options, scope) {
 	request.method = 'post'
 	request.path = '/'
 	request.data = data.json
-	return await ff_http_request( request )
+	return await ff_http_request( request, options, scope  )
 }
 
 
 // Stop all actions that are running
-async function stop_all() {
+// Can be scoped by organization
+async function stop_all( data, options, scope ) {
+	// Get all running
+	const get_running_scenarios_action = {
+		action: 'action/get_running'
+	}
 
+	if ( data?.organization ) {
+		get_running_scenarios_action['organization'] = data.organization
+	}
+
+	const running_scenarios = await ff_api_request( get_running_scenarios_action, options, scope )
+
+	// For each running_scenario, stop it
+	if ( Array.isArray(running_scenarios) ) {
+		for ( const scenario of running_scenarios ) {
+			console.error( 'STOPPING SCENARIO uri=', scenario.uri )
+			console.error( 'WITH name=', scenario.name )
+			console.error( 'IN organization=', scenario.organization )
+			await ff_api_request(
+				{
+					...data,
+					action: 'action/stop',
+					uri: scenario.uri
+				},
+				options,
+				scope
+			)
+		}
+	}
 }
 
 
 // Provision Agents
-function provision_agents( data, options, scope ) {
-	/*
-    transaction_id = '77c4023f-fb5a-4ef9-a04e-1be7ac543bbd' // uuid
-    namespace = '071cbad7-d14e-4a22-8606-dbb645deb5fb' // Change
-    uuid = '6fdf296d-e28a-4e1b-b126-6d86db4a0db0' // Change dynamically
+async function provision_agents( data, options, scope ) {
+
+
+	const organization = data.organization
+	if ( ! organization ) {
+		console.error( 'ERROR - organization required')
+		return
+	}
+	
+	const duration_m = data.duration_m
+	if ( duration_m <= 60 ) {
+		console.error( 'ERROR - duration_m must be at least 60')
+		return
+	}
+
+	const type = 'traffic_generator'
+	if ( !data.type ) {
+		console.error( 'ERROR - type required. Must be either: traffic_generator | monitor | collector | test_target')
+		return
+	}
+
+	const namespace = '071cbad7-d14e-4a22-8606-dbb645deb5fb'
+	const transaction_id = uuidv4()
+	const uuid = uuidv4()
 
     const provisioning_request_template = {
         "mime_type": "provision/request_general_cloud_agents",
-        "uri": `${namespace}::/organization/${data.organization}/provision/request_general_cloud_agents/${uuid}`,
+        "uri": `${namespace}::/organization/${organization}/provision/request_general_cloud_agents/${uuid}`,
         "timestamp_epoch_ms": Date.now(),
         "schedule_enum": "now",
         "provision_object": "agents",
@@ -348,9 +462,17 @@ function provision_agents( data, options, scope ) {
         "cpu_count": 2,
         "ram_gb": 8,
         "tags": [
-        "traffic_generator:true"
+        	`${data.type}:true`
         ],
-		*/
+		"user_contact_email": scope.api_credentials.ff_api_user
+	}
+
+	const request = scope.request
+	request.method = 'post'
+	request.path = '/'
+	request.data = provisioning_request_template
+	const post_response = await ff_http_request( request, options, scope )
+	
     /*
         // "deployment_request_uri": "/organizations/training.redwolfsecurity.com/provisioning/deployment_request/duration_h/1.02/transaction_id/35c6f788-387d-44ce-b3cd-caa88e77868f",
 
@@ -409,4 +531,15 @@ function provision_agents( data, options, scope ) {
     //return provisioning_request_template
 }
 
-main(configuration)
+async function main ( data?, options?, scope? ) {
+	const api_credentials = {
+		mime_type: 'ff/credentials',
+		ff_host: data.ff_host,
+		ff_user: data.ff_user,
+		username: data.ff_api_user,
+		password: data.ff_api_password
+	}
+	delete data.ff_api_password
+	const result = await ff_api_request( data, options, { ...scope, api_credentials } )
+}
+main( configuration )
