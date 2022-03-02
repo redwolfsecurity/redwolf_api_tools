@@ -26,6 +26,12 @@ cli
     .option( '--duration_m [minutes]', 'Set duration in minutes')
     .option( '--json [json]', 'Provide JSON encoded as a string.')
     .option( '--type [type]', 'Set type')
+    .option( '--to [to]', 'Set to')
+    .option( '--from [from]', 'Set from')
+    .option( '--mime_type [mime_type]', 'Set mime_type')
+    .option( '--title [title]', 'Set title')
+    .option( '--severity [severity]', 'Set severity')
+    .option( '--short_description [short_description', 'Set short_description')
     .option( '--output_format [format]', 'Change format. Default is text. Supports "json"')
 
 cli.parse( process.argv )

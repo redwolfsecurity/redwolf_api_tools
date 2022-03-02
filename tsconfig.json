@@ -14,7 +14,8 @@
            "jest"
         ],
         "strictNullChecks" : false,
-        "inlineSourceMap": true,
+	"sourceMap" : true,
+        //"inlineSourceMap": true,
 	// Generate .d.ts files
         "declaration": true,
         "moduleResolution": "node",

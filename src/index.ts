@@ -1,8 +1,27 @@
+import { install as install_sourcemap_support } from 'source-map-support'
+install_sourcemap_support()
 import { configuration } from './auto_configuration'
 import { http_request as ff_http_request } from './lib/ff_http_request'
 import { readFileSync, readSync } from 'fs'
 import * as process from 'process'
 import { v4 as uuidv4 } from 'uuid'
+import { inspect } from 'util'
+
+function format_json( data?, options?, scope? ) {
+	if ( ! data ) return
+	// Two cases: one where we have console output
+	// Other where we are told to output json directly
+	// TODO - Support 1 line per JSON object output
+	let output
+	if ( options?.output_format === 'json ') {
+		// Case where output_format is set to JSON
+		output = JSON.stringify( data, null, 2 )
+	} else {
+		// Case where we have terminal output
+		output = inspect( data, { depth: Infinity, colors: true } )
+	}
+	return output
+}
 
 function project(object, projection) {
 	if ( !object ) {
@@ -118,8 +137,13 @@ async function ff_api_request(data?, options?, scope?) {
 			action: 'provision/agents',
 			name: 'Provision Agents',
 			short_description: 'Provision Agents',
-			project: { mime_type: true },
 			async_function: provision_agents
+		},
+		{
+			action: 'notification/message',
+			name: 'Notification Message',
+			short_description: 'Send a notification message to users.',
+			async_function: notification_message
 		},
 	]
 
@@ -425,7 +449,7 @@ async function stop_all( data, options, scope ) {
 async function provision_agents( data, options, scope ) {
 
 
-	const organization = data.organization
+	const organization = data?.organization
 	if ( ! organization ) {
 		console.error( 'ERROR - organization required')
 		return
@@ -447,7 +471,7 @@ async function provision_agents( data, options, scope ) {
 	const transaction_id = uuidv4()
 	const uuid = uuidv4()
 
-    const provisioning_request_template = {
+    const provisioning_request = {
         "mime_type": "provision/request_general_cloud_agents",
         "uri": `${namespace}::/organization/${organization}/provision/request_general_cloud_agents/${uuid}`,
         "timestamp_epoch_ms": Date.now(),
@@ -458,20 +482,40 @@ async function provision_agents( data, options, scope ) {
         "quantity": data.quantity,
         "duration_hours": data.duration_m / 60,
         "duration_minutes": data.duration_m,
-        "organization": data.organization,
+        "organization": organization,
         "cpu_count": 2,
         "ram_gb": 8,
+		
         "tags": [
         	`${data.type}:true`
         ],
-		"user_contact_email": scope.api_credentials.ff_api_user
+		"user_contact_email": scope.api_credentials.username
 	}
+	console.error( 'PROVISION AGENTS JSON', format_json( provisioning_request ) )
 
+	// sins?
+	provisioning_request["exact_distribution"] = ""
+
+	const to = data?.to ? data.to : '/broadcast'
+	const delivery_message = await create_message_publish_template (
+		{
+			to: to
+		}
+	)
+
+
+	delivery_message.payload.push( provisioning_request )
+	const result = await deliver_message( delivery_message, options, scope )
+	return result
+
+	/*
 	const request = scope.request
 	request.method = 'post'
 	request.path = '/'
 	request.data = provisioning_request_template
 	const post_response = await ff_http_request( request, options, scope )
+	return post_response
+	*/
 	
     /*
         // "deployment_request_uri": "/organizations/training.redwolfsecurity.com/provisioning/deployment_request/duration_h/1.02/transaction_id/35c6f788-387d-44ce-b3cd-caa88e77868f",
@@ -529,13 +573,77 @@ async function provision_agents( data, options, scope ) {
     }
 	*/
     //return provisioning_request_template
+
 }
+
+async function notification_message( data?, options?, scope? ) {
+	if ( ! data ) return
+	const title = data?.title ? data.title : 'Notification Message'
+	const short_description = data?.short_description ? data.short_description : ''
+	const severity = data?.severity ? data.severity : 'info'
+	const to = data?.to ? data.to : '/broadcast'
+	const organization = data?.organization ? data.organization : 'system'
+	const delivery_message = await create_message_publish_template (
+		{
+			to: to
+		}
+	)
+	const uuid = uuidv4()
+	const notification = {
+		mime_type : 'notification/message',
+		uri : `/notification/${uuid}`,
+		title : title,
+		text : short_description,
+		severity: severity,
+		organization: organization
+	}
+	console.error( 'NOTIFICATION', format_json( notification ) )
+
+	delivery_message.payload.push( notification )
+	const result = await deliver_message( delivery_message, options, scope )
+	return result
+}
+
+async function create_message_publish_template ( data?, options?, scope? ) {
+	const uuid = uuidv4()
+	const from = data?.from ? data.from : 'cli_api_tool'
+	const to = data?.to ? data.to : '/broadcast'
+	const mime_type = data?.mime_type ? data.mime_type : 'delivery/publish_header'
+
+	return {
+		uri : `/delivery/${uuid}`,
+		mime_type : 'delivery/message',
+		header : {
+			mime_type : mime_type,
+			from: from,
+			to: to,
+			transaction_id : uuid
+		},
+		payload : []
+	}
+}
+
+// Deliver a message to the message delivery endpoint
+async function deliver_message ( data?, options?, scope? ) {
+	if ( ! data ) return
+	/*
+	if ( ! Array.isArray( data ) ) {
+		data = [ data ]
+	}
+	*/
+	const request = scope.request
+	request.method = 'post'
+	request.path = '/service/delivery'
+	request.data = data
+	const post_response = await ff_http_request( request, options, scope )
+	return post_response
+}
+
 
 async function main ( data?, options?, scope? ) {
 	const api_credentials = {
 		mime_type: 'ff/credentials',
 		ff_host: data.ff_host,
-		ff_user: data.ff_user,
 		username: data.ff_api_user,
 		password: data.ff_api_password
 	}
