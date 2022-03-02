@@ -45,7 +45,6 @@
   ],
   "dependencies": {
     "@ff/fancy_framework": "https://cdn.redwolfsecurity.com/ff/npm/ff-fancy_framework-latest.tgz",
-    "@ff/ff_http_request": "^2.8.10",
     "commander": "^9.0.0",
     "uuid": "^8.3.2"
   },
