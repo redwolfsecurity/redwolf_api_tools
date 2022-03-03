@@ -24,6 +24,10 @@ A non-authenticating action to test general API endpoint reachability is:
 
     ff_cli --action network/get_publc_ip
 
+Default is console output, but JSON is an option:
+
+    ff_cli --action network/get_publc_ip --output_format json
+
 # Get your IP and test the reachability of API   
     ff_cli --action network/get_public_ip  
    
