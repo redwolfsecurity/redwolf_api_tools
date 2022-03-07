@@ -12,8 +12,9 @@ Note:
 
 Building:
 
-npm ci
-npm build
+    npm ci
+
+    npm build
 
 Running:
 
