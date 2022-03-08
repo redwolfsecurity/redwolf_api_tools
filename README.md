@@ -10,6 +10,12 @@ Note:
 - Your API PASSWORD is not the one you log in with, it is a separate password token just for API use
 - Your role must include api_user in at least one organization for any authenticated API calls to work
 
+Building:
+
+    npm ci
+
+    npm build
+
 Running:
 
 There is a script in the 'bin' directory. We recommend putting it in path.
