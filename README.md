@@ -20,7 +20,7 @@ Running:
 
 There is a script in the 'bin' directory. We recommend putting it in path.
 
-PATH=${PATH}:${PWD}/bin
+    PATH=${PATH}:${PWD}/bin
 
 Then run:
 
