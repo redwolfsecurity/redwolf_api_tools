@@ -249,20 +249,6 @@ async function scenario_copy(data, options, scope) {
 			}
 		})
 
-		/*
-		if (data?.set_target) {
-			console.error('SETTING target to', data.set_target)
-			let new_cells_string = source_object.cells.replace('amplify.imperva.com:443', data.set_target)
-			source_object.cells = new_cells_string
-		}
-
-		if (data?.set_url) {
-			console.error('SETTING url to', data.set_url)
-			let new_cells_string = source_object.cells.replace('https://amplify.imperva.com/', data.set_url)
-			source_object.cells = new_cells_string
-		}
-		*/
-
 		cells_string = JSON.stringify( cells_json )
 		source_object.cells = cells_string
 	
