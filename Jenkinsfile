@@ -54,7 +54,7 @@ pipeline {
       }
       steps {
         script {
-          if (env.BRANCH_NAME == 'master') {
+          if (env.BRANCH_NAME == 'main') {
             // Install build_tools
             sh 'bash --login -c "npm install --global ${PRODUCTION_CONTENT_URL}${TARBALL_FILEPATH}"'
           } else {
