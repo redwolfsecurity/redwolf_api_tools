@@ -31,7 +31,7 @@ pipeline {
     stage('Test') {
       steps {
         // Run tests
-        sh 'bash --login -c "npm run test"'
+        // sh 'bash --login -c "npm run test"'
       }
     }
 
