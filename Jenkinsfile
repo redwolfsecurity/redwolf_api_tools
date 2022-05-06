@@ -13,6 +13,9 @@ pipeline {
   stages {
     stage('Install') {
       steps {
+        // Cleanup
+        sh 'bash --login -c "npm cache clean --force"'
+        sh 'bash --login -c "rm package-lock.json"'
         // Install dependencies
         sh 'bash --login -c "npm install"'
       }
