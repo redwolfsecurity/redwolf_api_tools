@@ -18,6 +18,7 @@ pipeline {
         sh 'bash --login -c "rm package-lock.json"'
         // Install dependencies
         sh 'bash --login -c "npm install"'
+        sh 'bash --login -c "npm u
       }
     }
 
