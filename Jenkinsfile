@@ -99,7 +99,7 @@ pipeline {
 
       steps {
         script {
-          if (env.BRANCH_NAME == 'master') {
+          if (env.BRANCH_NAME == 'main') {
             sh 'bash --login -c "build_package --no-version-bump"'
             sh 'bash --login -c "publish_package_to_cdn \"${PRODUCTION_CONTENT_S3_BUCKET_NAME}\" \"${PRODUCTION_CONTENT_S3_NPM_PATH}\" \"${PRODUCTION_CONTENT_CDN_DISTRIBUTION_ID}\""'
 
